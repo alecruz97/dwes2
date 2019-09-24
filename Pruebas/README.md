@@ -1,3 +1,3 @@
-Esto es **negrita**
+Esto es **negrita**.
 
-Y esto es *inclinada*
+Y esto es _inclinada_.
