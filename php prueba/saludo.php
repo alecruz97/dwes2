@@ -1,9 +1,12 @@
-kdnlsfadknfa
-
 <?php
 
-echo "hola\n";
+// echo $argc;
 
-?>
+$ayuda = <<<EOT
+    nfddafòadnfa
+    smdfñma+
+    asdfkamfa
+    adkfla
+EOT;
 
-jfdbsñbfdñkjabfñ
+echo $ayuda;
