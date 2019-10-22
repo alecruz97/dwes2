@@ -1,11 +1,6 @@
 <?php
 
-function dibujar_tabla($m)
-{
-    for ($i = 0; $i<=10; $i++){
-        echo "$m x $i = " . $m * $i . "\n";
-    }   
-}
+require __DIR__ . 'auxiliar.php';
 
 if ($argc < 2){
     echo "Sintaxis: {$argv[0]} <número>\n";
@@ -13,6 +8,12 @@ if ($argc < 2){
 }
 
 $n = $argv[1];
+
+function prueba ()
+{
+    global $n;
+    echo $n;
+}
 
 if (!ctype_digit($n)){
     echo "Error: el <número> debe ser un número entero y positivo.\n";
