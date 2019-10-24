@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * @author Alejandro Cruz <alecruz230497@gmail.com>
+ * @copyright 2019 Alejandro Cruz
+ * @license GPL
+ */
+
 require __DIR__ . 'auxiliar.php';
 
 if ($argc < 2){
