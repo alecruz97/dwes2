@@ -10,23 +10,23 @@
     <?php
     require __DIR__ . '/auxiliar.php';
     const OPS = ['+', '-', '*', '/'];
-    $errores = [];
-    $op1 = param('op1');
-    $op2 = param('op2');
-    $op  = param('op');
+    const PAR = ['op1' => "", 'op2' => "", 'op' => '+'];
 
-    dibujarFormulario($op1, $op2,$op);
+    $errores = [];
+    
+    
     try {
-        comprobarParametros($errores);
+        extract(comprobarParametros(PAR, $errores));
         comprobarErrores($errores);
         comprobarValores($op1, $op2, $op, OPS, $errores);
-        comprobarErrores($errores);
         calcular($op1, $op2, $op);
     } catch (Exception $e) {
-        foreach ($errores as $error) {
-            mensajeError($error);
-        }
     }
+
+    dibujarFormulario($op1, $op2, $op, OPS);
+
+    mostrarErrores($errores);
+    
     ?>
 </body>
 </html>
