@@ -2,7 +2,7 @@ DROP TABLE IF EXISTS departamentos CASCADE;
 
 CREATE TABLE departamentos (
     id                  bigserial       PRIMARY KEY
-  , numero              numeric(2)      NOT NULL UNIQUE
+  , num_dep              numeric(2)      NOT NULL UNIQUE
   , dnombre             varchar(255)    NOT NULL
   , localidad           varchar(255)    NOT NULL
 );
@@ -18,3 +18,7 @@ CREATE TABLE empleados (
                                         ON DELETE NO ACTION ON UPDATE CASCADE
 );
 
+INSERT INTO departamentos(num_dep, dnombre, localidad)
+VALUES  (10, 'Contabilidad', 'Sanlúcar')
+      , (20, 'Facturación', 'Chipiona')
+      , (30, 'Ventas', 'Trebujena');
