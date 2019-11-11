@@ -15,11 +15,11 @@
         <div class="row mt-3">
             <div class="col-4 offset-4">
                 <?php
-                    require __DIR__ . 'auxiliar.php';
+                    require __DIR__ . '/auxiliar.php';
 
-                    const PAR = ['num_dep' => ''];
+                    const PAR = ['num_dep' => '', 'dnombre' => ''];
+
                     $errores = [];
-
                     $pdo = new PDO('pgsql:host=localhost;dbname=datos', 'usuario', 'usuario');
 
                     try {
@@ -27,19 +27,69 @@
                         comprobarErrores($errores);
                         comprobarValores($args, $errores);
                     } catch (Exception $e) {
-                        
+                        //no se hace nada   
                     }
                     dibujarFormulario($args, $errores);
                 ?>
             </div>
         </div>
         <?php
-            // $stmt = $pdo->query('SELECT * FROM departamentos');
-            $stmt = $pdo->prepare('SELECT *
-                                   FROM departamentos
-                                   WHERE num_dep = :num_dep');
-            $stmt = execute(['num_dep' => $args['num_dep']]);
-        ?>
+            $sql = 'FROM departamentos WHERE true';
+            $execute = [];
+            if ($args['num_dep'] !== '' && !isset($errores['num_dep'])){
+                $sql .= ' AND num_dep = :num_dep';
+                $execute['num_dep'] = $args['num_dep'];
+            }
+            if ($args['dnombre'] !== '' && !isset($errores['dnombre'])){
+                $sql .= ' AND dnombre ILIKE :dnombre';
+                $execute['dnombre'] = '%' . $args['dnombre'] . '%';
+            }
+
+            $stmt = $pdo->prepare("SELECT COUNT (*) $sql");
+            $stmt -> execute($execute);
+            $count = $stmt->fetchColumn();
+            $stmt = $pdo->prepare("SELECT * $sql");
+            $stmt -> execute($execute);
+
+
+
+            // if (!empty($errores) || $args['num_dep'] === ''){
+            //     $stmt = $pdo->query('SELECT COUNT(*) FROM departamentos');
+            //     $count = $stmt->fetchColumn();
+            //     $stmt = $pdo->query('SELECT * FROM departamentos');
+            // } else{
+            //     $stmt = $pdo->prepare('SELECT COUNT(*)
+            //                            FROM departamentos
+            //                            WHERE num_dep = :num_dep');
+            //     $stmt->execute(['num_dep' => $args['num_dep']]);
+            //     $count = $stmt->fetchColumn();
+            //     $stmt = $pdo->prepare('SELECT *
+            //                            FROM departamentos
+            //                            WHERE num_dep = :num_dep');
+            //     $stmt->execute(['num_dep' => $args['num_dep']]);
+            // }
+            ?>
+
+        <?php if ($count == 0):?>
+        
+        <div class="row mt-3">
+            <div class="col-8 offset-2">
+                <div class="alert alert-danger" role="alert">
+                    No se ha encontrado la fila.
+                </div>
+            </div>
+        </div>
+        
+        <?php elseif (isset($errores[0])): ?>
+        <div class="row mt-3">
+            <div class="col-8 offset-2">
+                <div class="alert alert-danger" role="alert">
+                    Los parámetros recibidos no son los correctos.
+                </div>
+            </div>
+        </div>
+        
+        <?php else: ?>
         <div class="row mt-4">
             <div class="col-8 offset-2">
                 <table class="table">
@@ -60,6 +110,7 @@
                     </table>
             </div>
         </div>
+        <?php endif ?>
     </div>
             
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
