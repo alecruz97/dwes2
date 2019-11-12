@@ -12,63 +12,58 @@
 </head>
 <body>
     <div class="container">
-        <div class="row mt-3">
-            <div class="col-4 offset-4">
-                <?php
-                    require __DIR__ . '/auxiliar.php';
-
-                    const PAR = ['num_dep' => '', 'dnombre' => ''];
-
-                    $errores = [];
-                    $pdo = new PDO('pgsql:host=localhost;dbname=datos', 'usuario', 'usuario');
-
-                    try {
-                        $args = comprobarParametros(PAR, $errores);
-                        comprobarErrores($errores);
-                        comprobarValores($args, $errores);
-                    } catch (Exception $e) {
-                        //no se hace nada   
-                    }
-                    dibujarFormulario($args, $errores);
-                ?>
-            </div>
-        </div>
         <?php
-            $sql = 'FROM departamentos WHERE true';
-            $execute = [];
-            if ($args['num_dep'] !== '' && !isset($errores['num_dep'])){
-                $sql .= ' AND num_dep = :num_dep';
-                $execute['num_dep'] = $args['num_dep'];
+        require __DIR__ . '/auxiliar.php';
+
+        const TIPO_ENTERO = 0;
+        const TIPO_CADENA = 1;
+
+        const PAR = ['num_dep' =>[
+                        'def'  => '',
+                        'tipo' => TIPO_ENTERO,
+                        'etiqueta' => 'Número'
+                    ],
+                    'dnombre' =>[
+                        'def'  => '',
+                        'tipo' => TIPO_CADENA,
+                        'etiqueta' => 'Departamento'
+                    ],
+                    'localidad' =>[
+                        'etiqueta' => 'Localidad'
+                    ],
+        ];
+
+        $errores = [];
+        $pdo = new PDO('pgsql:host=localhost;dbname=datos', 'usuario', 'usuario');
+
+        if (isset($_POST['id'])){
+            $id = trim($_POST['id']);
+            if (isset($_POST['op']) && $_POST['op'] == 'borrar'){
+                $stmt = $pdo->prepare('DELETE
+                                       FROM departamentos
+                                       WHERE id = :id');
+                $stmt->execute(['id' => $id]);
+                if($stmt->rowCount() === 1):
+                    alert('Se ha borrado con exito.', 'success');
+                endif;
+                    
             }
-            if ($args['dnombre'] !== '' && !isset($errores['dnombre'])){
-                $sql .= ' AND dnombre ILIKE :dnombre';
-                $execute['dnombre'] = '%' . $args['dnombre'] . '%';
-            }
+        }
 
-            $stmt = $pdo->prepare("SELECT COUNT (*) $sql");
-            $stmt -> execute($execute);
-            $count = $stmt->fetchColumn();
-            $stmt = $pdo->prepare("SELECT * $sql");
-            $stmt -> execute($execute);
+        $args = comprobarParametros(PAR, $errores);
+        comprobarValores($args, $errores);
+                    
+        dibujarFormulario($args, $errores);
+        
+        $sql = 'FROM departamentos WHERE true';
+        $execute = [];
+        foreach(PAR as $k => $v){
+            insertarFiltro($sql, $execute, $k, $args, PAR, $errores);
+        }
 
+        [$stmt, $count] = ejecutarConsulta($sql, $execute, $pdo);
 
-
-            // if (!empty($errores) || $args['num_dep'] === ''){
-            //     $stmt = $pdo->query('SELECT COUNT(*) FROM departamentos');
-            //     $count = $stmt->fetchColumn();
-            //     $stmt = $pdo->query('SELECT * FROM departamentos');
-            // } else{
-            //     $stmt = $pdo->prepare('SELECT COUNT(*)
-            //                            FROM departamentos
-            //                            WHERE num_dep = :num_dep');
-            //     $stmt->execute(['num_dep' => $args['num_dep']]);
-            //     $count = $stmt->fetchColumn();
-            //     $stmt = $pdo->prepare('SELECT *
-            //                            FROM departamentos
-            //                            WHERE num_dep = :num_dep');
-            //     $stmt->execute(['num_dep' => $args['num_dep']]);
-            // }
-            ?>
+        ?>
 
         <?php if ($count == 0):?>
         
@@ -84,7 +79,7 @@
         <div class="row mt-3">
             <div class="col-8 offset-2">
                 <div class="alert alert-danger" role="alert">
-                    Los parámetros recibidos no son los correctos.
+                    <?=$errores[0]?>
                 </div>
             </div>
         </div>
