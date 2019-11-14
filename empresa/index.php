@@ -34,7 +34,7 @@
         ];
 
         $errores = [];
-        $pdo = new PDO('pgsql:host=localhost;dbname=datos', 'usuario', 'usuario');
+        $pdo = conectar();
 
         if (isset($_POST['id'])){
             $id = trim($_POST['id']);

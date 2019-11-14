@@ -67,12 +67,7 @@ function mensajeError($campo, $errores)
     }
 }
 
-function comprobarErrores($errores)
-{
-    if (empty($_GET) || !empty($errores)) {
-        throw new Exception();
-    }
-}
+
 
 function selected ($op, $o)
 {
@@ -199,4 +194,14 @@ function alert($mensaje, $tipo)
         </div>
     </div>
     <?php
+}
+
+function conectar()
+{
+    return new PDO('pgsql:host=localhost;dbname=datos', 'usuario', 'usuario');
+}
+
+function peticion()
+{
+    return $_SERVER['REQUEST_METHOD'] === 'GET'
 }
