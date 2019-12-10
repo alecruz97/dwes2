@@ -1,0 +1,81 @@
+Actividad 3:
+     
+    drop table if exists aulas cascade;
+    
+    create table aulas(
+        id              numeric(3,0) constraint pk_aulas primary key,
+        denom           varchar(20)   not null
+    );
+    
+    drop table if exists departamentos cascade;
+    
+    create table departamentos(
+        id              numeric(3,0) constraint pk_departamentos primary key,
+        denom           varchar(20)   not null
+    );
+    
+    drop table if exists componentes cascade;
+    
+    create table componentes(
+        id              bigserial       constraint pk_componentes primary key,
+        denom           varchar(255)    not null,
+        aula            numeric(3,0)    constraint fk_ordenadores_aulas references aulas(id)
+                                        on delete no action on update cascade,
+        departamento    numeric(3,0)    constraint fk_ordenadores_aulas references departamentos(id)
+                                        on delete no action on update cascade,
+    );
+    
+    drop table if exists ordenadores cascade;
+    
+    create table ordenadores(
+        id              bigserial,
+        componente      bigint          constraint fk_ordenadores_componentes references componentes(id)
+                                        on delete no action on update cascade,
+        aula            numeric(3,0)    constraint fk_ordenadores_aulas references aulas(id),
+        departamento    numeric(3,0)    constraint fk_ordenadores_aulas references departamentos(id),
+                                        constraint pk_ordenadores primary key (id, componente)
+    );
+    
+    drop table if exists sistemas_operativos cascade;
+    
+    create table sistemas_operativos(
+        id              numeric(1,0)    constraint pk_aulas primary key,
+        denom           varchar(255)    not null,
+        aula            numeric(3,0)    constraint fk_sistemas_aulas references aulas(id)
+                                        on delete no action on update cascade,
+        departamento    numeric(3,0)    constraint fk_sistemas_departamentos references departamentos(id)
+                                        on delete no action on update cascade,
+        
+    );
+
+    drop table if exists sistemas_ordenadores cascade;
+    
+    create table ordenadores_sistemas(
+        ordenador       bigint          constraint fk_ordenadores_ordenadores_sistemas references ordenadores(id)
+                                        on delete no action on update cascade,
+        sistema         bigint          constraint fk_sistemasoperativos_ordenadores_sistemas references sistemas_operativos(id)
+                                        on delete no action on update cascade,
+                    
+    );
+    
+    
+Actividad 4:
+
+update ordenadores_sistemas set sistema = (select id
+                                            from sistemas_operativos
+                                            where denom = 'Windows 10')
+      where (select ordenador, sistema
+              from ordenadores_sistemas
+              where sistemas is in (select id 
+                                    from sistemas_operativos
+                                    where denom = 'Windows 7')
+                    and ordenador is in (select id
+                                         from ordenadores
+                                         where aula is in (select id
+                                                           from aulas
+                                                           where denom = 'P-6' and denom = 'P-10')));
+                   
+                   
+Actividad 6:
+
+update ordenadores_sistemas 

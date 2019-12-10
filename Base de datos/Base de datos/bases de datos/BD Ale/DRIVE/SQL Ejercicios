@@ -1,0 +1,28 @@
+--Ejercicio 1: Dada la tabla nacimientos, escribir una sentencia select que obtenga la siguiente salida: nombre, fechanac, fecha_formateada. --donde fecha_formateada tiene el siguiente formato: "Nació el 12 de mayo de 1982".
+
+-select nombre, fechanac, to_char(fechanac, '"Nació el "DD" de "tmmonth" de "YYYY') as fecha_formateada
+from nacimientos;
+
+
+
+
+--Ejercicio 2: dada la tabla libreria, escribir una sentencia select que visualice el tema, el ultimo caracter del tema que no sea blanco y el numero de caracteres del tema (sin contar los blancos), ordenados por tema.
+
+-select tema, right(trim(tema),1), length(trim(tema)) 
+from libreria
+order by tema;
+
+
+
+
+--Ejercicio 3: Convertir la cadena '010712' a fecha y visualizar su nombre de mes con mayúscula.
+
+-select to_char('010712'::date,'TMMONTH');
+
+
+
+--Ejercicio 4: seleccionar el apellido de los empleados de la tabla EMPLE que lleven más de 10 años trabajando en el departamento 'VENTAS'.
+
+-select apellido
+from emple natural join depart
+where dnombre = 'VENTAS' and age(fecha_alt) >= '10 years 1 day'::interval;

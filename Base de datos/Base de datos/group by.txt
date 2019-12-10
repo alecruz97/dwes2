@@ -1,0 +1,120 @@
+-- Escribir una consulta que muestre por pantalla cuántos empleados hay de cada oficio en cada departamento:
+	select oficio, dept_no, count(*)
+	from emple
+	group by oficio, dept_no;
+
+
+-- Mostrar, para cada departamento y oficio, cuál es su salarario máximo:
+
+	select dept_no, dnombre, oficio, max(salario  )
+	from emple natural join depart
+	group by dept_no, oficio, dnombre;
+
+
+-- Mostrar para cada asignatura su nota media:
+
+	select cod, nombre, round(avg(nota), 1) as nota_media
+	from notas natural join asignaturas
+	group by cod, nombre
+	order by cod;
+
+-- Mostrar para cada asignatura cuantos aprobados tiene:
+
+	select cod, nombre, count (*)
+	from notas natural join asignaturas
+	where nota >= 5
+	group by cod, nombre;
+
+-- Mostrar la nota medaia de cada asignatura:
+
+	select cod, nombre, round(avg(nota), 1) as nota_media
+	from notas natural join asignaturas
+	group by cod, nombre
+	order by cod;
+
+-- Mostrar la asginatura con mayor nota media:
+
+-- ¿Cuál es la nota media más grande?
+
+Primer paso:
+	select cod, round(avg(nota), 1) as nota_media
+	from notas
+	group by cod;
+
+Segundo paso:
+	select max(nota_media)
+	from (select cod, round(avg(nota), 1) as nota_media
+		from notas
+		group by cod) t;
+
+Tercer paso:
+	select cod
+	from (select cod, round(avg(nota), 1) as nota_media
+		from notas
+		group by cod) t
+	where nota_media = (select max(nota_media)
+				from (select cod, round(avg(nota), 1) as nota_media
+					from notas
+					group by cod) t);
+
+
+-- Mostrar los departamentos que tengan más de 3 empleados:
+-- Mostrar cuántos empleados tiene cada departamento:
+
+	select dept_no, count(*)
+	from emple
+	group by dept_no
+	having count(*) > 3;
+
+
+-- Mostrar la asginatura con mayor nota media:
+
+	select cod, avg(nota) as nota_media
+	from notas
+	group by cod
+	having avg(nota) >= all (select avg(nota)
+                         		from notas
+                         		group by cod);
+
+
+-- Mostrar la asignatura con mayor numero de aprobados:
+
+	select cod,count(*)
+	from notas
+	where nota >= 5
+	group by cod;
+
+	select cod
+	from notas
+	where nota >= 5
+	group by cod
+	having count(*) >= all(select count(*)
+				from notas
+				where nota >= 5
+	                        group by cod);
+                        
+-- Mostrar el estante con mayor numero de ejemplares:
+
+	select *
+	from libreria;
+
+	select estante, sum(ejemplares)
+	from libreria
+	group by estante;
+
+	select estante
+	from libreria
+	group by estante
+	having sum(ejemplares) >= all (select sum(ejemplares)
+					from libreria
+					group by estante);
+
+-- Mostrar los departamentos cuyo salario medio **NO** supere al salario medio de la empresa:
+
+	select round(avg(salario), 2)
+	from emple;
+
+	select dept_no, dnombre
+	from emple natural join depart
+	group by dept_no, dnombre
+	having avg(salario) <= (select avg(salario) from emple);

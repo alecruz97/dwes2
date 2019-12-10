@@ -1,0 +1,61 @@
+select emp_no, apellido, comision::character varying
+	from emple
+union
+select dept_no, dnombre, loc
+	from depart;
+    
+select *
+	from emple
+union all
+select *
+	from emple;
+    
+select *
+	from alum;
+    
+select *
+	from antiguos;
+    
+select *
+	from nuevos;
+    
+    
+select * from alum
+intersect
+select * from antiguos;
+
+select * from alum
+except
+(select * from antiguos
+ union
+ select * from nuevos);
+ 
+ 
+ -- Mostrar los departamentos que no tienen empleados:
+ 
+select dept_no
+ 	from depart
+except
+select dept_no
+	from emple;
+ 
+select dept_no, dnombre
+	from depart
+    where dept_no not in (select dept_no
+ 							from depart
+							intersect
+							select dept_no
+							from emple);
+                            
+-- Mostrar los departamentos que tienen empleados:
+
+select dept_no
+	from depart
+    where dept_no in (select dept_no
+                          from emple);
+                          
+select dept_no
+	from depart
+intersect
+select dept_no
+	from emple;

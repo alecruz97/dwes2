@@ -1,0 +1,7 @@
+﻿-- Escribir una consulta que muestre los datos de los alumnos que hayan sacado la misma nota (en cualquier asignatura) que ha sacado Elena en FOL:
+
+select distinct alumnos.*
+	from notas natural join alumnos
+	where nota = (select nota
+			from notas natural join alumnos natural join asignaturas
+			where apenom like '%Elena' and nombre like 'Análisis');

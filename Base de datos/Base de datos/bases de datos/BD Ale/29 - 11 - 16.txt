@@ -1,0 +1,95 @@
+-- Mostrar el ingreso total en euros que generó cada alquiler
+
+with alq_importe as (select a.*, round((precio_alq * iva)/100.0 + precio_alq, 2) as importe
+                     from alquileres a natural right join peliculas p)
+	select *, importe * (coalesce(fecha_dev, current_date) - fecha_alq) as total
+    from alq_importe;
+                     
+
+
+-- Calcular el número de días de retraso totales que tiene cada socio en lo que va de año e importe total de dicho retrasi,
+-- ordenado de mayor a menor por morosidad:
+
+with alq as (select *, fecha_alq + '1 day'::interval as dia_de_entrega, coalesce(fecha_dev, current_date) - fecha_alq - 1 as dias_retraso
+				from alquileres natural right join socios),
+                
+     alq_importe as (select a.*, round((precio_alq * iva)/100.0 + precio_alq, 2) as importe
+                     from alquileres a natural right join peliculas p)
+
+	select numero, sum(coalesce(dias_retraso, 0)) as retraso_acumulado, 
+    				sum(coalesce(importe * (coalesce(fecha_dev, current_date)- 1 - fecha_alq), 0)) as total
+    	from alq natural full join alq_importe
+        where extract(year from fecha_alq) = extract(year from current_date)
+        		or fecha_alq is null
+        group by numero
+        order by retraso_acumulado desc;
+        
+        
+        
+        
+ 
+-- VERSIÓN DE RICARDO:        
+
+with alq_pel as (select a.*, round((precio_alq * iva)/100.0 + precio_alq, 2) as precio_ii, 
+							coalesce(fecha_dev, current_date) - fecha_alq - 1 as dias
+					from alquileres a natural join peliculas p
+                    where extract(year from fecha_alq) = extract(year from current_date))
+select numero, sum(coalesce(dias, 0)) as dias_totales, sum(coalesce(dias * precio_ii, 0)) as importe_total
+from alq_pel natural right join socios
+group by numero
+order by dias_totales desc;
+
+
+
+
+-- Calcular el importe de iva
+
+select *, round(precio_alq * iva / 100.0, 2)
+from peliculas;
+
+
+select iva, extract(quarter from fecha_alq), sum(coalesce(round(precio_alq * iva / 100.0, 2), 0)) as importe_iva
+from peliculas natural right join alquileres
+where extract(year from fecha_alq) = extract(year from current_date) -- to_char(fecha_alq, 'YYYY') = to_char(current_date, 'YYYY')
+group by 1, 2
+order by 1, 2;
+
+
+
+with trimestres as (select *
+                    from generate_series(1,4) as t(trimestre)),
+	ivas as (select distinct iva
+             from peliculas),
+	casi as (
+        		select iva, trimestre, 0 as importe
+					from trimestres, ivas
+				union
+				select iva, extract(quarter from fecha_alq), sum(coalesce(round(precio_alq * iva / 100.0, 2), 0)) as importe
+					from peliculas natural right join alquileres
+					where extract(year from fecha_alq) = extract(year from current_date) -- to_char(fecha_alq, 'YYYY') = to_char(current_date, 'YYYY')
+					group by 1, 2)
+
+select iva, trimestre, sum(importe) as importe
+from casi
+group by 1, 2
+order by 1, 2;
+                  
+
+
+
+with ivas as (select distinct iva
+             from peliculas),
+	casi as (
+        		select iva, trimestre, 0 as importe
+					from generate_series(1,4) t(trimestre), ivas
+				union
+				select iva, extract(quarter from fecha_alq), sum(coalesce(round(precio_alq * iva / 100.0, 2), 0)) as importe
+					from peliculas natural right join alquileres
+					where extract(year from fecha_alq) = extract(year from current_date) -- to_char(fecha_alq, 'YYYY') = to_char(current_date, 'YYYY')
+					group by 1, 2)
+
+select iva, trimestre, sum(importe) as importe
+from casi
+group by 1, 2
+order by 1, 2;
+

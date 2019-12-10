@@ -1,0 +1,29 @@
+-- Mostrar los días acumulados de retraso cada socio en lo que va de año:
+
+with alq as (select *, fecha_alq + '1 day'::interval as dia_de_entrega, coalesce(fecha_dev, current_date) - fecha_alq - 1 as dias_retraso
+				from alquileres natural right join socios)
+
+	select numero, sum(coalesce(dias_retraso, 0)) as retraso_acumulado
+    	from alq
+        where extract(year from fecha_alq) = extract(year from current_date)
+        		or fecha_alq is null
+        group by numero;
+
+
+
+
+-- Comprobar si hay dos películas con el mismo título:
+
+	select titulo, count(*)
+	from peliculas
+	group by titulo;
+
+	select count(*) != count(distinct titulo)
+	from peliculas;
+
+-- Mostrar las peliculas que tenga el mismo titulo:
+
+	select lower(trim(titulo))
+	from peliculas
+	group by 1
+	having count(*) > 1;

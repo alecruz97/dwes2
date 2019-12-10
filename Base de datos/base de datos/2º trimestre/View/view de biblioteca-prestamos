@@ -1,0 +1,6 @@
+create view v_prestamos as
+select p.*, age(coalesce(p.devolucion, current_timestamp), p.creacion) as duracion, 
+       age(coalesce(p.devolucion, current_timestamp), p.creacion) > '15 days':: interval as atrasado,
+       l.isbn, l.titulo, l.autor, le.numero, le.nombre, le.telefono,
+       age(coalesce(p.devolucion, current_timestamp), p.creacion) > '15 days':: interval as atrasado       
+from prestamos p join libros l on p.libro_id = l.id join lectores le on p.lector_id = le.id;

@@ -1,0 +1,137 @@
+-- Mostrar el total de cada factura, número de líneas de cada factura y cantidad de articulos en cada factura,
+-- ordenado por número de factura:
+
+select numero, count(*) as numero_lineas, to_char(sum(precio * cantidad), 'FM99G999G999G999G990D00L') as total, sum(cantidad) as cantidad_articulos
+from fac natural join lin natural join art
+group by numero
+order by numero;
+
+
+-- Mostrar cuántas unidades se han vendido de cada articulo, el mes actual de hace dos años:
+
+select codigo, denominacion, coalesce(sum(cantidad), 0) as unidades_vendidas
+from fac natural join lin natural right join art
+where extract(month from fecha) = extract(month from current_date)
+		and extract(year from fecha) = extract(year from current_date) - 2
+		or fecha is null
+group by codigo, denominacion
+order by codigo;
+
+
+version 2.0:
+
+select codigo, denominacion, coalesce(sum(cantidad), 0) as unidades_vendidas
+from art natural left join (select *
+                            from fac natural join lin
+                            where extract(month from fecha) = extract(month from current_date)
+                            	and extract(year from fecha) = extract(year from current_date) - 2
+                                or fecha is null) t
+group by codigo, denominacion
+order by codigo;
+
+
+
+-- Mostrar cuántas unidades se han vendido de cada articulo, el mes pasado:
+
+select codigo, denominacion, coalesce(sum(cantidad), 0) as unidades_vendidas
+from art natural left join (select *
+                            from fac natural join lin
+                            where to_char(fecha, 'MM-YYYY') = to_char(current_date - '1 month'::interval, 'MM-YYYY')) t
+                           { -- extract(month from fecha) = extract(month from current_date - '1 month'::interval) --}
+                           { -- and extract(year from fecha) = extract(year from current_date - '1 month'::interval)) t --}
+group by codigo, denominacion
+order by codigo;
+
+version 2.0 más bonita
+	select codigo, denominacion, coalesce(unidades, 0)
+	from art natural left join (select codigo, sum(cantidad) as unidades
+                            		from lin natural join fac
+                            		where to_char(fecha, 'MM-YYYY') = to_char(current_date - '1 month'::interval, 'MM-YYYY')
+                           		group by codigo) t;
+
+
+
+Usando cosas del tema siguiente
+
+with t as (select codigo, sum(cantidad) as unidades
+		from lin natural join fac
+		where to_char(fecha, 'MM-YYYY') = to_char(current_date - '1 month'::interval, 'MM-YYYY')
+		group by codigo)
+                                
+select codigo, denominacion, coalesce(unidades, 0)
+from art natural left join t;
+
+
+
+
+with t as (select codigo, sum(cantidad) as unidades
+		from lin natural join fac
+		where to_char(fecha, 'MM-YYYY') = to_char(current_date - '1 month'::interval, 'MM-YYYY')
+		group by codigo),                                
+	j as (select codigo, denominacion, coalesce(unidades, 0)
+		from art natural left join t)
+
+select *
+from j;
+
+
+
+
+
+-- ¿Cuál es el articulo que menos se ha vendido?
+with t as (select codigo, sum(cantidad) as unidades
+              from lin natural join fac
+              group by codigo),
+ totales as (select codigo, coalesce(unidades, 0) as unidades
+				from art natural left join t)
+select codigo
+from totales
+where unidades <= all (select unidades
+                       	from totales);
+
+
+-- ¿Cuál es el articulo que más se ha vendido?
+
+select codigo, sum(cantidad) as total
+from lin
+group by codigo
+having sum(cantidad) >= all(select sum(cantidad)
+                            	from lin
+                            	group by codigo);
+         
+
+
+
+-- Mostrar los datos de los clientes que hayan realizado exactamente dos compras (facturas):
+
+select nif
+from fac 
+group by nif
+having count(*) = 2;
+
+
+-- Mostrar cuántas ventas (facturas) se han realizado en cada mes, independientemente del año:
+
+with x as (select extract(month from fecha) as mes, count(*) as ventas
+		from fac 
+		group by 1),
+
+     y as (select *
+		from generate_series(1,12) as t(mes))
+      
+      select mes, coalesce(ventas, 0)
+      from x natural right join y;
+
+
+-- Total de ventas por trimestre:
+
+with x as (select extract(quarter from fecha) as trimestre, count(*) as ventas
+			from fac 
+			group by 1),
+     y as (select *
+			from generate_series(1,4) as t(trimestre))
+      
+      select trimestre, coalesce(ventas, 0) as ventas
+      from x natural right join y;
+
+version de ricardo:

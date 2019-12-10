@@ -1,0 +1,77 @@
+-- Visualizar el número y el nombre del departamento que tenga más empleados cuyo oficio sea EMPLEADO:
+
+	select dept_no, oficio, count(*)
+	from emple
+	where oficio = 'EMPLEADO'
+	group by dept_no, oficio;
+
+	select dept_no, dnombre
+	from emple natural join depart
+	where oficio = 'EMPLEADO'
+	group by dept_no, dnombre
+	having count(*) >= all (select count(*)
+				from emple
+				where oficio = 'EMPLEADO'
+				group by dept_no);
+
+
+
+
+-- Buscar los departamentos que tengan más de dos personas trabajando en la misma profesión:
+
+	select dept_no
+	from emple natural join depart
+	group by dept_no, oficio
+	having count(*) > 2;
+
+
+
+
+-- Mostrar qué departamentos tienen menos de 3 empleados:
+
+	select *
+	from emple natural right join depart;
+
+	select dept_no, dnombre
+	from emple natural right join depart
+	group by dept_no, dnombre
+	having count(emp_no) < 3;
+
+
+-- Escribir una consulta que muestre cuántos subordinados tiene cada empleado.
+-- Si un empleado no tiene subordinados, deberá indicar que tiene 0 subordinados:
+
+	select j.emp_no, count(e.emp_no)
+	from emple e right join emple j on e.dir = j.emp_no
+	group by j.emp_no;
+
+
+-- Mostrar el número de empleados que hay en cada centro. Si el centro carece de empleados, debe aparecer un 0:
+
+	select cod_centro, count(dni)
+	from centros natural left join personal
+	group by cod_centro;
+
+
+
+-- Obtener el salario total que debe pagar cada centro:
+
+	select *
+	from personal;
+
+	select cod_centro, coalesce(sum(salario), 0)
+	from personal natural right join centros
+	group by cod_centro;
+
+	select cod_centro, coalesce(sum(salario), 0), to_char(sum(coalesce(salario, 0)), '999G990D99L')
+	from personal natural right join centros
+	group by cod_centro;
+
+
+
+-- Mostrar un listado en el que aparezca cuántos empleados se han dado de alta en cada trimestre de cualquier año:
+
+	select extract(quarter from fecha_alt), count(*)
+	from emple
+	group by 1
+	ºorder by 1; -- SE PUEDE SUSTITUIR LA FUNCION SI ES PROYECTADA EN EL SELECT POR EL NUMERO CORRESPONDIENTE A LA COLUMNA.

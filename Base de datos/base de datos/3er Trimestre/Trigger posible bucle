@@ -1,0 +1,58 @@
+--version 1.0
+create or replace function updated_at() returns trigger as $$
+begin
+     update socios
+     set update_at = current_timestamp
+     where id = new.id;
+     return new;
+end;
+$$ language plpgsql;
+
+
+
+drop trigger if exists updated_at on socios;
+
+create trigger updated_at
+after update of id, nombre, direccion, telefono on socios
+for each row
+execute procedure updated_at()
+
+
+--Version 1.1
+create or replace function updated_at() returns trigger as $$
+begin
+    update socios
+    set update_at = current_timestamp
+    where id = new.id;
+    return new;
+end;
+$$ language plpgsql;
+
+
+
+drop trigger if exists updated_at on socios;
+
+create trigger updated_at
+after update of id, nombre, direccion, telefono on socios
+for each row
+when (old.update_at is not distinct from new.update_at)
+execute procedure updated_at()
+
+--version 1.0 before
+create or replace function updated_at() returns trigger as $$
+begin
+    if old.update_at is not distinct from new.update_at then 
+        new.updated_at := current_timestamp;
+    end if;
+    return new;
+end;
+$$ language plpgsql;
+
+
+
+drop trigger if exists updated_at on socios;
+
+create trigger updated_at
+before update on socios
+for each row
+execute procedure updated_at()

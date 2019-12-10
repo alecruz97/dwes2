@@ -1,0 +1,55 @@
+2. Mostrar un listado donde se muestre la cantidad de dinero que cada socio debe por retraso de peliculas que aun no se han devuelto. Cada dia de rertaso en un 
+alquiler supone un recargo de 3 euros. Deberá mostrar tres columnas: numero de socio, nombre del socio e importe total de dinero que debe pagar por retrasos. 
+Mostrar solo los socios que tienen retrasos.
+
+
+	select numero, nombre, sum(current_date - fecha_alq - 1) * 3 as importe_retrasos
+	from alquileres natural join socios
+	where current_date - fecha_alq > 1 and fecha_dev is null
+	group by numero, nombre;
+
+
+
+
+3. Mostrar una lista de los socios que van retrasados en la devolucion de sus peliculas. Una pelicula va atrasada cuando lleva más de un dia alquilada y aun no 
+está devuelta. Deberá mostrar las siguientes columnas: numero, socio, nombre del socio, código de la pelicula atrasada, nombre de la película atrasada y días que 
+lleva atrasada.
+
+
+	select numero, nombre, codigo, titulo, current_date - fecha_alq - 1 as dias_retraso
+	from alquileres natural join socios natural join peliculas
+	where current_date - fecha_alq > 1 and fecha_dev is null;
+
+
+
+
+4. Mostrar un listado que muestre cuantas veces se ha alquilado cada pelicula este mes. Deberá mostrar tres columnas: codigo de película, titulo de pelicula
+y numero de veces que se alquiló.
+
+
+	select p.codigo, titulo, count(a.numero) as numero_veces
+	from alquileres a right join  peliculas p on a.codigo = p.codigo and to_char(fecha_alq, 'YYYYMM') = to_char(current_date, 'YYYYMM')
+	group by p.codigo, titulo;
+
+
+
+
+-- 5. Mostrar un listado con todas las peliculas del videoclub, indicando al lado si se ha alquilado alguna vez. Deberá mostrar tres columna: el codifgo de la pelicula,
+el titulo de la pelicula, y una palabra que será "Sí" si se ha alquilado alguna vez, o "No" si no se ha alquilado nunca.
+
+
+	select codigo, titulo, case when count(numero) <= 0 then 'no' else 'si' end
+	from alquileres natural right join peliculas
+	group by codigo, titulo;
+
+	-- version ricardo:
+	select distinct codigo, titulo, case when numero is null then 'no' else 'si' end
+	from peliculas natural left join alquileres;
+
+	-- version ricardo 2.0:
+	select distinct codigo, titulo, 'si'
+	from alquileres natural join peliculas
+	union
+	select codigo, titulo, 'no'
+	from peliculas
+	where codigo not in (select codigo from alquileres);

@@ -1,0 +1,119 @@
+-- Escribir una consulta que muestre los datos de los empleados que ganen más de la media
+-- (considerando salario y comisión):
+
+select *
+from emple
+where salario + coalesce(comision, 0) > (select avg(salario + coalesce(comision, 0))
+                          					from emple);
+                                         
+
+
+
+-- Escribir una consulta que muestre los datos de los empleados que ganen más que la media del departamento 30
+-- (considerando salario y comision):
+
+select *
+from emple
+where salario + coalesce(comision, 0) > (select avg(salario + coalesce(comision, 0))
+                                                    from emple
+                                                    where dept_no = 30);
+
+
+
+-- Escribir una consulta que muestre los datos de los empleados del departamento 20 que ganen más que la media del departamento 30
+-- (considerando salario y comision):
+
+select *
+from emple
+where dept_no = 20 and salario + coalesce(comision, 0) > (select avg(salario + coalesce(comision, 0))
+                                                   		 from emple
+                                                   		 where dept_no = 30);
+
+
+-- Escribir una consulta que muestre los datos de los empleados que tengan el mismo oficio que GIL
+-- y que pertenezcan al mismo departamento:
+
+select *
+	from emple
+	where oficio = (select oficio 
+				from emple 
+				where apellido = 'GIL')
+ 		         and dept_no = (select dept_no
+					from emple 
+					where apellido = 'GIL');
+
+Select oficio, dept_no
+    from emple
+    where apellido = 'GIL';
+    
+select *
+	from emple
+    where (oficio, dept_no) = (select oficio, dept_no
+                               	from emple
+                               	where apellido = 'GIL');
+
+
+-- Escribir una consulta que muestre los datos de los empleados que tengan el mismo oficio que alguno de los empleados 
+-- del departamento 30:
+
+select *
+	from emple
+    where oficio not in (select oficio
+                        	from emple
+                        	where dept_no = 30);
+                            
+
+-- Escribir una consulta que muestre el DNI de los alumnos que hayan aprobado todas las asignaturas:
+
+select distinct dni
+	from notas
+    where dni not in (select dni
+                      	from notas
+                      	where nota < 5);
+{ -- Escribit una consulta que muestre el DNI de los alumnos que han suspendido algo:
+
+	select dni
+		from notas
+		where nota < 5;}
+
+
+
+-- Escribir una consulta que muestre el nombre de los departamentos que no tengan empleados:
+
+{select *
+	from depart natural join emple;}
+
+select dnombre
+	from depart
+    where dept_no not in (select dept_no
+                          	from emple);
+
+
+-- Escribir una consulta que muestre los datos de los empleados que ganen más que todos los empleados del departamento 30:
+
+select *
+	from emple
+	where salario > all (select salario
+    	              	from emple
+        	          	where dept_no = 30);
+    
+
+
+>> SUBCONSULTA TIPO 3 <<
+                    
+-- Escribir una consulta que muestre los datos de los empleados que ganen más que el salario medio de su departamento:
+
+select *
+from emple e1 
+where salario > (select avg(salario)
+                    from emple e2
+                    where e2.dept_no = e1.dept_no);
+
+
+-- Escribir una consulta que muestre los datos de los empleados que ganen más que su jefe:
+
+select *
+from emple e1
+where salario > (select salario
+			from emple e2
+			where e2.emp_no = e1.dir);

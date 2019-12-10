@@ -1,0 +1,15 @@
+create or replace function soft_detele() returns trigger as $$
+begin
+    update socios
+    set deleted = true
+    where id = old.id;
+    not null; --el null salta la fila y no permite el borrado de la misma
+end;
+$$ language plpgsql;
+
+drop trigger if exists soft_delete on socios;
+
+create trigger soft_delete
+before delete on socios
+for each row
+execute procedure soft_delete();

@@ -1,0 +1,59 @@
+-- 1. Mostrar, para cada socio, cuántas peliculas tiene pendientes de devolver. Deberá mostrar tres columnas: el número de socio, 
+-- el nombre del socio y el número total de películas que tiene pendientes de devolver. Mostrar sólo los socios que tienen peliculas pendientes:
+select numero, nombre, count(*)
+	from alquileres natural join socios
+	where fecha_dev is null
+	group by numero, nombre;
+
+-- 2. Mostrar un listado con las películas que ya se han amortizado. Una película está amortizada cuando ha recaudado más dinero (por los 
+-- alquileres) que el que costó comprarla. Deberá mostrar cuatro columnas: código de pelicula, titulo de pelicula, precio de compra y 
+-- beneficio obtenido (la diferencia entre lo recaudado y lo que costó). Ordenar descendentemente por esta cuarta columna.
+
+with beneficio as (select codigo,  sum(precio_alquiler) - precio_compra as beneficio_obtenido
+                   from peliculas natural left join alquileres
+                   where fecha_alq is not null
+                  group by 1
+                  having  sum(precio_alquiler) - precio_compra > 0)
+                  
+select codigo, titulo, precio_compra, beneficio_obtenido
+	from beneficio natural join peliculas
+	group by codigo, titulo, precio_compra, beneficio_obtenido
+	order by 4;
+
+-- 3. Mostrar un listado de las películas del videoclub, ordenadas de mayor a menor en función del número de veces que se hayan alquilado. 
+-- Es decir: debe aparecer primero la película que más veces se haya alquilado y al final las películas que solo se hayan alquilado una vez.
+-- Las películas que no se hayan alquilado nunca, no saldrán. Deberá mostrar tres columnas: código de película, título de película y número de
+-- veces que se ha alquilado.
+
+
+select codigo, titulo, count(*) as veces_alquilado
+	from peliculas natural left join alquileres
+	where fecha_alq is not null
+	group by codigo, titulo
+	order by count(*) desc;
+
+-- 4. Mostrar la película que más dinero ha recaudado en el videoclub. Deberá mostrar tres columnas: código de película, título de película,
+-- y cantidad total de dinero recaudado.
+ -- Considero dinero recaudado el dinero de alquiler y cada dia de retraso que se multiplica por el dinero de alquiler
+with veces_alquilado as (select codigo, titulo, count(*) as veces_alquilado
+                         from peliculas natural left join alquileres
+                         where fecha_alq is not null
+                         group by codigo, titulo),
+	recaudado as (select codigo, sum((fecha_dev - fecha_alq) * precio_alquiler) as recaudacion
+                  from peliculas natural left join alquileres 
+                  where fecha_dev is not null
+                  group by codigo)
+                         
+select codigo, titulo, recaudacion
+	from veces_alquilado natural join recaudado 
+	where recaudacion >= (select max(recaudacion)
+							from recaudado)
+	group by codigo, titulo, recaudacion;
+
+-- 5. Mostrar un listado con los socios que han alquilado algo este mes (sólo estos socios). Deberá mostrar tres columnas: número de socio,
+-- nombre del socio y número de películas alquiladas en este mes:
+
+select numero, nombre, count(*)
+	from socios natural left join alquileres
+	where to_char(fecha_alq, 'MMYYYY') = to_char(current_date, 'MMYYYY') and fecha_alq is not null
+	group by numero, nombre;

@@ -1,0 +1,59 @@
+select *
+from emple
+order by emp_no
+limit 8;
+
+-- Mostrar el segundo empleado, suponiendo que ordenamos por nº de empleados:
+select *
+from emple
+order by emp_no
+limit 1
+offset 1;
+
+-- Mostrar el apellido del empleado que más gana en el departamento 20:
+
+select apellido
+from emple
+where dept_no = 20
+order by salario desc
+limit 1;
+
+select apellido
+from emple
+where dept_no = 20 and salario = (select max(salario)
+                                  	from emple
+                                  	where dept_no = 20);
+                                    
+
+-- Mostrar el apellido del segundo empleado que más gana en el departamento 20
+select apellido
+from emple
+where dept_no = 20 and salario = (select distinct salario
+                                  	from emple
+                                  	where dept_no = 20
+                                  	order by salario desc
+                                  	limit 1
+                                  	offset 1);
+                                    
+-- Mostrar el apellido de los tres empleados que más ganan en el departamento 20:
+select apellido
+from emple
+where dept_no = 20
+order by salario desc
+limit 3;
+
+-- Mostrar el apellido de los empleados del departamento 20 que tengan uno de los tres salarios más altos del departamento 20:
+
+select apellido
+from emple
+where dept_no = 20 and salario in (select distinct salario
+                                  	from emple
+                                  	where dept_no = 20
+                                  	order by salario desc
+                                  	limit 3)
+order by salario desc;
+
+-- Mostrar el ingreso total en euros que generó cada alquiler
+
+select alquileres.*, to_char((precio_alq * iva)/100.0 + precio_alq, '999D99L') as importe
+from alquileres natural right join peliculas;

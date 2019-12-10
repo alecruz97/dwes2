@@ -1,0 +1,37 @@
+1.
+
+	select ficha_id, titulo, count(*)
+	from fichas natural join reparto
+	group by ficha_id, titulo
+	having count(*) between 2 and 4;
+
+2.
+
+	select count(*)
+	from fichas
+	where anyo::text between to_char(current_date - '10 year'::interval, 'YYYY') and to_char(current_date, 'YYYY');
+
+3.
+
+	select ficha_id, titulo, nombre
+	from personas natural join fichas natural join reparto
+	where director_id = persona_id;
+
+4.
+
+	select ficha_id, titulo, duracion
+	from fichas
+	where anyo::text = to_char(current_date, 'YYYY') and duracion > all (select max(duracion)
+									from fichas
+									where anyo::text = to_char(current_date - '1 year'::interval, 'YYYY')
+									group by duracion);
+
+5.
+
+	
+	select ficha_id, titulo
+	from fichas
+	where titulo in (select titulo
+		from fichas
+		group by titulo
+		having count(titulo) > 1);

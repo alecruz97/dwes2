@@ -1,0 +1,59 @@
+
+--1 peliculas pendientes de devolver
+
+
+select numero, nombre, count (*) as "peliculas pendientes"
+
+	from alquileres natural join socios
+
+	where fecha_dev is null
+
+	 group by nombre, numero;
+
+
+--2 peliculas amortizadas 
+
+select codigo, titulo, precio_compra, count(*) * precio_alquiler - precio_compra as beneficio
+
+	from alquileres natural join peliculas
+
+	  group by codigo, precio_alquiler, precio_compra, titulo
+
+		having count(*) * precio_alquiler > precio_compra;
+
+
+
+--3 peliculas ordenadas en funcion de las veces que se hayan alquilado
+
+select codigo, titulo, count(numero) 
+
+	from alquileres natural right join peliculas
+
+	   group by codigo, titulo
+
+		order by 3 desc;
+
+
+--4 mostrar las peliculas que mas dinero han recaudado
+
+select codigo, titulo, count(numero) * precio_alquiler
+from alquileres natural right join peliculas
+ group by codigo, titulo
+having count(numero) * precio_alquiler >= all (select count(numero) * precio_alquiler
+					from alquileres natural right join peliculas
+					group by codigo);
+
+
+--5 listado con los socios que hayan alquilado algo este mes.
+
+
+select numero, nombre, count(*) as "pelicuas alquiladas"
+
+	from alquileres natural join socios
+
+	 where extract(month from fecha_alq) = extract(month from current_date) and 
+
+        	extract(year from fecha_alq) = extract(year from current_date)
+
+		   group by numero, nombre;
+
