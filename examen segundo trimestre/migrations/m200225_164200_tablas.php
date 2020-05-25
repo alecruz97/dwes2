@@ -72,7 +72,7 @@ class m200225_164200_tablas extends Migration
             'nombre' => 'pepe',
             'direccion' => 'C/. Ancha',
             'codpostal_id' => 1,
-            'fecha_nac' => "1978-06-02"
+            'fecha_nac' => '1978-06-02'
         ]);
     }
 

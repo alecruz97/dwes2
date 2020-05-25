@@ -19,7 +19,7 @@ class LectoresSearch extends Lectores
         return [
             [['id'], 'integer'],
             [['numero', 'nombre', 'direccion', 'poblacion', 'provincia', 'fecha_nac', 'created_at'], 'safe'],
-            [['cod_postal'], 'number'],
+            [['codpostal_id'], 'number'],
         ];
     }
 
@@ -60,7 +60,7 @@ class LectoresSearch extends Lectores
         // grid filtering conditions
         $query->andFilterWhere([
             'id' => $this->id,
-            'cod_postal' => $this->cod_postal,
+            'codpostal_id' => $this->codpostal_id,
             'fecha_nac' => $this->fecha_nac,
             'created_at' => $this->created_at,
         ]);

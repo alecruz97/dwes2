@@ -18,7 +18,8 @@ $this->params['breadcrumbs'][] = $this->title;
         <?= Html::a('Create Lectores', ['create'], ['class' => 'btn btn-success']) ?>
     </p>
 
-    <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
+    <?php // echo $this->render('_search', ['model' => $searchModel]); 
+    ?>
 
     <?= GridView::widget([
         'dataProvider' => $dataProvider,
@@ -32,7 +33,7 @@ $this->params['breadcrumbs'][] = $this->title;
             'direccion',
             'poblacion',
             //'provincia',
-            //'cod_postal',
+            'codpostal_id',
             //'fecha_nac',
             //'created_at',
 

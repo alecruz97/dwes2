@@ -52,6 +52,6 @@ class Provincias extends \yii\db\ActiveRecord
      */
     public function getPoblaciones()
     {
-        return $this->hasMany(Poblaciones::className(), ['provincia_id' => 'id']);
+        return $this->hasMany(Poblaciones::className(), ['provincia_id' => 'id'])->inverseOf('provincia');
     }
 }

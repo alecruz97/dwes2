@@ -5,6 +5,7 @@ namespace app\controllers;
 use Yii;
 use app\models\Generos;
 use app\models\GenerosSearch;
+use app\models\Libros;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -104,7 +105,16 @@ class GenerosController extends Controller
      */
     public function actionDelete($id)
     {
-        $this->findModel($id)->delete();
+        $model = $this->findModel($id);
+
+        if ($model->getLibros()->exists()) {
+            Libros::deleteAll(['genero_id' => $id]);
+            Yii::$app->session->setFlash('success', 'Se han borrado además los libros.');
+        } else {
+            Yii::$app->session->setFlash('success', 'Se ha borrado el género.');
+        }
+
+        $model->delete();
 
         return $this->redirect(['index']);
     }

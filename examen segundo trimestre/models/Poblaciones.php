@@ -58,7 +58,7 @@ class Poblaciones extends \yii\db\ActiveRecord
      */
     public function getCodpostales()
     {
-        return $this->hasMany(Codpostales::className(), ['poblacion_id' => 'id']);
+        return $this->hasMany(Codpostales::className(), ['poblacion_id' => 'id'])->inverseOf('poblacion');
     }
 
     /**
@@ -68,6 +68,6 @@ class Poblaciones extends \yii\db\ActiveRecord
      */
     public function getProvincia()
     {
-        return $this->hasOne(Provincias::className(), ['id' => 'provincia_id']);
+        return $this->hasOne(Provincias::className(), ['id' => 'provincia_id'])->inverseOf('poblaciones');
     }
 }
