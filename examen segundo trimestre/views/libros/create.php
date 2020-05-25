@@ -1,5 +1,6 @@
 <?php
 
+use app\models\Generos;
 use yii\bootstrap4\Html;
 
 /* @var $this yii\web\View */
@@ -15,6 +16,9 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <?= $this->render('_form', [
         'model' => $model,
+        'lista' => Generos::lista(),
+
+
     ]) ?>
 
 </div>
